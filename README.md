@@ -1,139 +1,60 @@
-# GDUnixSocket
-Unix Domain Sockets for Objective-C
+# Solana Copy Trading Bot (Fast Copy Trading in 0 Block)   [@coffellas](https://t.me/coffellas)
 
-![screen_record](https://cloud.githubusercontent.com/assets/3193877/13028486/1de4f2a0-d279-11e5-9dff-beb4067829bc.gif)
+## Overview
 
-## About
-Unix domain sockets are designed specifically for local interprocess communication. See [this](http://man7.org/linux/man-pages/man7/unix.7.html) for clarification.
+The Solana Copy Trading Bot enables real-time replication of target wallets’ transactions with remarkable efficiency, operating within a single blockchain block. This tool is designed for traders seeking to leverage the trading strategies of successful wallets swiftly.
 
-`GDUnixSocket` framework is an Objective-C object-oriented wrapper around unix sockets which allows you to abstract away from file descriptors and system calls. You can also use it for communication between any entities within one process.
+## Recent Update
+Updated pumpdotfun and pump amm swap's instructions according to recent pumpfun smart contract upgrade
 
-All calls are blocking for now. But there are asynchronous variants of methods which call blocking operations on concurrent queues. See "Usage" for further details.
+## Example Transactions
+### PumpDotFun Copy Trading Transactions(0 Block)
+Target Address: https://solscan.io/account/suqh5sHtr8HyJ7q8scBimULPkPpA557prMG47xCHQfK#defiactivities (Top Trader with 80-90% Win Rate)
 
-There is a complete example project for your convinience.
+Bot Wallet: https://solscan.io/account/8io2kFbfUsGpggVknDkWQdeHyTHR5HL4dFfnTHxNwSfo#defiactivities
 
-## Usage
-The framework consists of three main classes:
+- Source Transaction(BUY):
+https://solscan.io/tx/5E3M4nmPJiitSX7KgyiSJ2fhc62NCoFCbc8w5muG1c4HKhUWVgtARL1Hz29LwzP7WSf52FGkJ2GSkKTsoq7s3ACH
 
-* `GDUnixSocket` - base class. Generally you don't use it as it implements only read/write operations but not the actual creation of a socket.
-* `GDUnixSocketServer` - use it for creating a server.
-* `GDUnixSocketClient` - use it for creating a client.
+- Copied Transaction(BUY):
+https://solscan.io/tx/2hS7u22TX2RqyDt96m5SEPEB4Va9HJwz6wzoCw1Ru8jWpiz8NLc57DGPfxAfU38MuZQe2DpZKqn4DWsxK3uXVbTa
 
-*For the complete documentation of every method see source code*.
+- Source Transaction(SELL):
+https://solscan.io/tx/i8sNjNShZbU8yHjvVU9UPzyvYQqSgXoeFzYmFjdR12Fd1MYHrPCnDwNxyK6jcTiqpi2Ya4JsjzziwuDMj6HNZCX
 
-### 1. Initialization
+- Copied Transaction(SELL):
+https://solscan.io/tx/3fvcP6jQvo6dGiwAPZqp5hJThbjzeKU3NMeBmoPvksYX4VPUyPpdr5iyfmHn2b1HbtyydQNudnHEGJvEt7VPNcXe
 
-The main channel of communication for both of these working classes is the actual file located somewhere in your file system. In order to initialize client or server you have to pass a path to this file as a parameter to initializer. For example:
+### Pump Amm Swap Copy Trading Transactions (1 Block)
+- Source
+https://solscan.io/tx/4XTpA4h3j3j7VTMmMg7LzwuoftUjvrfbLUgzPRtxbLYeSMPtgUdWUELrPAdY2YCStEuC2jdZiox85g9c9bfdPBS4
 
-```objc
-NSString *socketPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"test_socket"];
-GDUnixSocketClient *client = [[GDUnixSocketClient alloc] initWithSocketPath:socketPath];
-```
+- Copied
+https://solscan.io/tx/3GxVKyjeYV2B6gfJPpFMdBsAkSeeuPd8mcVqTC8dBWvUms6f1CgTLxJhwVE4gJ6zeZp6chvbbAvHEhYY1MKTAygG
 
-Note that server and its clients all should be initialized with the same path.
+## Unique Feature: Racing Transaction Confirm
+Send Transactions to multiple tx confim providers like jito, nextBlock, BloxRoute, Temporal at the same time. And only confirm the fastest one. So always provide the fastest tx confirming.
 
-Beware that your process **must** have access rights to read and write to the directory where your new socket file is located. Otherwise the listening/connecting process would just fail.
+## Core Features
 
-Also note that path to the socket is limited to the size of `sun_path` field of `struct	sockaddr_un` imported from `<sys/un.h>` file. Check its value for your platform.
+- **Target Wallet List**: Easily add and manage a list of target wallets for trading replication.
+  
+- **Multi-DEX Support**: Compatible with various decentralized exchanges, including Jupiter, Raydium, and PumpFun Swap. Plans to integrate Meteora Swap are underway.
+  
+- **Instant Transaction Replication**: The bot monitors target wallets' activities in real-time to facilitate immediate transaction copying.
+  
+- **Geyser Usage**: Available to use Helius or yellowstone Geyser. (Yellowstone is faster)
 
-### 2. Starting a server
-Follow this rule: first you run server, then you connect clients. In order to start a server you have to create and and initialize an object of `GDUnixSocketServer` class as described in **1**.
+- **Manual Sell**: Able to manually sell if you wanna sell it any time
+## Installation
 
-Upon success of initialization you can start listening on newly created socket by calling one of the `listenWithMaxConnections:error:` or `listenWithError:` methods:
+To set up the Solana PumpFun Sniper Bot, please follow these instructions:
 
-```objc
-self.server = [[GDUnixSocketServer alloc] initWithSocketPath:socketPath];
-self.server.delegate = self;
-NSError *error;
-if ([self.server listenWithError:&error]) {
-    self.serverIsUp = YES;
-} else {
-    [self showErrorWithTitle:@"Couldn't start server" text:error.localizedDescription];
-}
-```
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/coffellas-cto/solana-rust-pumpfun-pumpswap-raydium-copy-sniper-trading-bot.git
+   cd solana-rust-ts-pumpfun-pumpswap-raydium-copy-trading-bot
 
-You can set a delegate object for your server (which conforms to `GDUnixSocketServerDelegate` protocol) to observe different events including but not limited to: new client connected, a client disconnected, server stopped, etc. For complete listing of these methods see **6**.
+## Support
 
-### 3. Connecting a client.
-After your server is set up and listening you can freely create a client (as described in **1**) and try to connect to server:
-
-```objc
-NSError *error;
-client.delegate = self.clientDelegate;
-if ([client connectWithAutoRead:YES error:&error]) {
-    [self setIndicatorConnected:YES];
-} else {
-    [self showErrorWithTitle:@"Can't connect" text:error.localizedDescription];
-}
-```
-
-If `autoRead` flag is set, upon successful connection it immediately starts asynchronously reading on the created socket. The result is automatically sent to you if you have set a delegate object of `delegate` property.
-
-Setting a delegate object which conforms to `GDUnixSocketClientDelegate` protocol allows you to receive data from server and observe reading errors. See **6** for its methods.
-
-### 4. Writing
-You can write data to a **client** connection using synchronous `writeData:error:` or asynchronous `writeData:completion:`.
-
-There is no meaning in writing data to **server** connection, but you can send data to one of the clients connected to that server.
-
-When a new client connects, your server's delegate receives a message `unixSocketServer:didAcceptClientWithID:` where the second parameter `newClientID` is a new client connection unique identifier. You also receive a client ID every time delegate's method `unixSocketServer:didReceiveData:fromClientWithID:` is called.
-
-So, you can send data to a client described by this identifier by calling `sendData:toClientWithID:error:` method or its asynchronous friend `sendData:toClientWithID:completion:` on your server object:
-
-```objc
-- (void)sendMessage:(NSString *)message toClientWithID:(NSString *)clientID {
-    [self.server sendData:[message dataUsingEncoding:NSUTF8StringEncoding] toClientWithID:clientID completion:^(NSError *error, ssize_t size) {
-        if (error) {
-            [self addLogLine:[NSString stringWithFormat:@"Failed to send message \"%@\" to client %@", message, clientID] error:error];
-        } else {
-            [self addLogLine:[NSString stringWithFormat:@"Sent message \"%@\" to client %@", message, clientID]];
-        }
-    }];
-}
-```
-
-### 5. Reading
-You can explicitly call `readWithError:` or `readWithCompletion:` on both your client and server object in order to read incoming data.
-
-You generally don't have to do so for servers and for a client which was connected with `autoRead` flag set. You rather set delegate objects and receive data when the corresponding methods are called. See **6** for the list of methods supported by delegates.
-
-### 6. Protocols
-Protocol of `GDUnixSocketClient`'s delegate:
-
-```objc
-@protocol GDUnixSocketClientDelegate <NSObject>
-@optional
-- (void)unixSocketClient:(GDUnixSocketClient *)unixSocketClient didReceiveData:(NSData *)data;
-- (void)unixSocketClient:(GDUnixSocketClient *)unixSocketClient didFailToReadWithError:(NSError *)error;
-@end
-```
-
-Protocol of `GDUnixSocketServer`'s delegate:
-
-```objc
-@protocol GDUnixSocketServerDelegate <NSObject>
-@optional
-- (void)unixSocketServerDidStartListening:(GDUnixSocketServer *)unixSocketServer;
-- (void)unixSocketServerDidClose:(GDUnixSocketServer *)unixSocketServer error:(NSError *)error;
-- (void)unixSocketServer:(GDUnixSocketServer *)unixSocketServer didAcceptClientWithID:(NSString *)newClientID;
-- (void)unixSocketServer:(GDUnixSocketServer *)unixSocketServer clientWithIDDidDisconnect:(NSString *)clientID;
-- (void)unixSocketServer:(GDUnixSocketServer *)unixSocketServer didReceiveData:(NSData *)data fromClientWithID:(NSString *)clientID;
-- (void)unixSocketServer:(GDUnixSocketServer *)unixSocketServer didFailToReadForClientID:(NSString *)clientID error:(NSError *)error;
-- (void)unixSocketServerDidFailToAcceptConnection:(GDUnixSocketServer *)unixSocketServer error:(NSError *)error;
-@end
-```
-
-### 7. Closing
-In order to close server or client you just call `close` or `closeWithError:`.
-
-### 8. Other
-Define `GD_UNIX_SOCKET_DEBUG` macro to see additional debug information.
-
-## TODO
-- It would be nice to have a non-blocking implementation rather then calling blocking functions asynchronously on dispatch queues
-- Last error is retieved using `errno`, need to switch to `getsockopt(..., ..., SO_ERROR, ..., ...)`
-
-## License
-Published under MIT license. If you have any feature requests, please create an issue. Smart pull requests are also welcome.
-
-Copyright (c) 2016 Alex Gordiyenko
+For assistance or inquiries, please reach out via Telegram at https://t.me/coffellas
